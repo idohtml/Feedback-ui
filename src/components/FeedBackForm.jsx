@@ -1,27 +1,58 @@
-import { useState } from "react";
-import Card from "./shared/Card";
+import { useState } from 'react';
+import Card from './shared/Card';
+import Button from './shared/Button';
+import RaitingSelect from './RaitingSelect';
 
-function FeedBackForm() {
-  const [text, setText] = useState("");
+function FeedBackForm({ handleAdd }) {
+  const [text, setText] = useState('');
+  const [rating, setRating] = useState(10);
+  const [btnDisabled, setBtnDisabled] = useState(true);
+  const [message, setMessage] = useState('');
 
   const handleTextChange = (e) => {
+    if (text === '') {
+      setMessage(null);
+      setBtnDisabled(true);
+    } else if (text !== '' && text.trim().length <= 10) {
+      setMessage('text must be at least 10 characters');
+      setBtnDisabled(true);
+    } else {
+      setMessage(null);
+      setBtnDisabled(false);
+    }
     setText(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (text.trim().length > 10) {
+      const newFeedback = {
+        text: text,
+        rating: rating,
+      };
+
+      handleAdd(newFeedback);
+      setText('');
+    }
   };
 
   return (
     <Card>
-      <form>
+      <form onSubmit={handleSubmit}>
         <h2>How would you rate your service with us?</h2>
-        {/* @todo - raiting select component */}
-        <div className="input-group">
+        <RaitingSelect select={(rating) => setRating(rating)} />
+        <div className='input-group'>
           <input
+            type='text'
+            placeholder='Write a review'
             onChange={handleTextChange}
-            type="text"
-            placeholder="Write a review"
             value={text}
           />
-          <button type="submit">Send</button>
+          <Button type='submit' isDisabled={btnDisabled}>
+            Send
+          </Button>
         </div>
+        {message && <div className='message'>{message}</div>}
       </form>
     </Card>
   );
